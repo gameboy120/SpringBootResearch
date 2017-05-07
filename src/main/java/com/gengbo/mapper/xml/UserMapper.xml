@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 指定工作空间，要与接口名相同，源代码没有去看，猜测应该是通过"这里的namespace.下边方法的id"来定位方法的 -->
+<mapper namespace="com.gengbo.mapper.UserMapper">
+    <resultMap type="User" id="userResultMap">
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+    </resultMap>
+    <!-- 若不需要自动返回主键，将useGeneratedKeys="true" keyProperty="id"去掉即可(当然如果不需要自动返回主键，直接用注解即可) -->
+    <insert id="insertUserWithBackId" parameterType="User" useGeneratedKeys="true" keyProperty="id" >
+        <![CDATA[
+       INSERT INTO tb_user
+       (
+           username,
+           password
+       )
+       VALUES
+       (
+           #{username, jdbcType=VARCHAR},
+           #{password, jdbcType=VARCHAR}
+       )
+       ]]>
+    </insert>
+
+    <select id="getUserByIdAndUsernameOrPassword" resultMap="userResultMap">
+        <![CDATA[ SELECT * FROM tb_user WHERE id = #{id}]]>
+        <trim prefix=" AND (" suffix=")" prefixOverrides="OR">
+            <if test="username != null"><![CDATA[ username = #{username}]]></if>
+            <if test="password != null"><![CDATA[ OR password = #{password}]]></if>
+        </trim>
+    </select>
+</mapper>
